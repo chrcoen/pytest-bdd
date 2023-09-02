@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Callable, cast
 
 import pytest
 
-from . import cucumber_json, generation, gherkin_terminal_reporter, given, reporting, then, when
+from . import cucumber_json, generation, gherkin_terminal_reporter, advanced_reporter, given, reporting, then, when
 from .utils import CONFIG_STACK
 
 if TYPE_CHECKING:
@@ -56,6 +56,7 @@ def pytest_addoption(parser: Parser) -> None:
     cucumber_json.add_options(parser)
     generation.add_options(parser)
     gherkin_terminal_reporter.add_options(parser)
+    advanced_reporter.add_options(parser)
 
 
 def add_bdd_ini(parser: Parser) -> None:
@@ -68,6 +69,7 @@ def pytest_configure(config: Config) -> None:
     CONFIG_STACK.append(config)
     cucumber_json.configure(config)
     gherkin_terminal_reporter.configure(config)
+    advanced_reporter.configure(config)
 
 
 def pytest_unconfigure(config: Config) -> None:
