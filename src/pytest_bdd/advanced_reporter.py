@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 from _pytest.terminal import TerminalReporter
+from _pytest._code.code import TerminalRepr
 
 if typing.TYPE_CHECKING:
     from typing import Any
@@ -60,7 +61,7 @@ class AdvancedReporter(TerminalReporter):
         elif result == 'failed':
             self._tw.write("FAILED", red=True)
             self.ensure_newline()
-            self._tw.write("Feature: ")
+            self._tw.write("\nFeature: ")
             self._tw.write(report.scenario["feature"]["name"])
             self._tw.write("\n")
             self._tw.write("    Scenario: ")
@@ -79,7 +80,15 @@ class AdvancedReporter(TerminalReporter):
                     failed = True
                     result_str = '  '
                     color = {"light": True}
+            # Remove call_fixture_func from chain since it will only bloat output but give no information
+            reporter = typing.cast(TerminalRepr, report.longrepr) 
+            ignore = [element[0].reprentries.pop(0) if 'def call_fixture_func' in element[0].reprentries[0].lines[0] else None for element in reporter.chain]
+            reporter.toterminal(self._tw)
+            for element, ign in zip(reporter.chain, ignore):
+                if ign is not None:
+                    element[0].reprentries.insert(0, ignore)
+
         else:
             assert 0
-        self.stats.setdefault(result, []).append(report)
+        # self.stats.setdefault(result, []).append(report)
         return None
